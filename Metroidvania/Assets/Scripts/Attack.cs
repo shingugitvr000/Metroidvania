@@ -39,9 +39,28 @@ public class Attack : MonoBehaviour
             throwableWeapon.GetComponent<ThrowableWeapon>().direction = direction;          //인스턴스에서 생겨난 오브젝트에 방향성 할당
         }        
     }
-    IEnumerator AttackCooldown() 
+    IEnumerator AttackCooldown()
     {
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.1f);
+        DoDamage();
+        yield return new WaitForSeconds(0.15f);
         canAttack = true;
+    }
+
+    public void DoDamage()
+    {
+        dmgValue = Mathf.Abs(dmgValue);
+        Collider2D[] collidersEnemies = Physics2D.OverlapCircleAll(attackCheck.position, 0.9f);
+        for (int i = 0; i < collidersEnemies.Length; i++)
+        {
+            if (collidersEnemies[i].gameObject.tag == "Enemy")
+            {
+                if (collidersEnemies[i].transform.position.x - transform.position.x < 0)
+                {
+                    dmgValue = -dmgValue;
+                }
+                collidersEnemies[i].gameObject.SendMessage("ApplyDamage", dmgValue);               
+            }
+        }
     }
 }

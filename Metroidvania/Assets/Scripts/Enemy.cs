@@ -27,13 +27,15 @@ public class Enemy : MonoBehaviour
 
     private Animator animator;
 
+    public bool isDead = false;
+
     private void Awake()
     {
         fallCheck = transform.Find("FallCheck");                    //하위 하이러키에서 FallCheck(게임오브젝트 이름) 찾아서 할당
         wallCheck = transform.Find("WallCheck");                    //하위 하이러키에서 WallCheck(게임오브젝트 이름) 찾아서 할당
         rigidbody2D = GetComponent<Rigidbody2D>();
         hitTimer = new Timer(0.1f);                                 //무적시간
-        destoryTimer = new Timer(3.25f);                            //죽는 모션 보고 캐릭터 삭제
+        destoryTimer = new Timer(1.25f);                            //죽는 모션 보고 캐릭터 삭제
         animator = GetComponent<Animator>();
     }
 
@@ -60,7 +62,7 @@ public class Enemy : MonoBehaviour
             }
         }
 
-        if(destoryTimer.IsRunning() && destoryTimer.GetRemainingTime() <= 0)
+        if(destoryTimer.GetRemainingTime() <= 0)
         {
             Destroy(gameObject);
         }
@@ -70,7 +72,7 @@ public class Enemy : MonoBehaviour
     {
         if(life < 0)                                //생명력 체크
         {
-            if(!destoryTimer.IsRunning())
+            if(isDead == false)
             {
                 StartDestorySequence();
             }
@@ -138,13 +140,14 @@ public class Enemy : MonoBehaviour
 
     void StartDestorySequence()                             //적군 피격후 설정값 함수
     {
-        animator.SetBool("IsDead", true);
+        animator.SetTrigger("IsDead");
         CapsuleCollider2D capsule = GetComponent<CapsuleCollider2D>();
         capsule.size = new Vector2(1f, 0.25f);
         capsule.offset = new Vector2(0f, -0.8f);
         capsule.direction = CapsuleDirection2D.Horizontal;
         rigidbody2D.velocity = Vector2.zero;
         destoryTimer.Start();
+        isDead = true;
     }
 
     public void ApplyDamage(float damage)                                   //공격 데미지 설정
